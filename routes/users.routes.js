@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const verifyToken = require('../middlewares/verifyToken');
 const {
     getUsuarios,
     getUsuarioById,
@@ -8,10 +9,17 @@ const {
     deleteUsuario
 } = require('../controllers/users.controller');
 
-router.get('/', getUsuarios);
-router.get('/:id', getUsuarioById);
-router.post('/', createUsuario);
-router.put('/:id', updateUsuario);
-router.delete('/:id', deleteUsuario);
+// Todas las rutas requieren estar logueado
+router.get('/', verifyToken, getUsuarios);
+router.get('/:id', verifyToken, getUsuarioById);
+
+// Crear usuario → si querés que se registre alguien, deberías usar /auth/register en vez de acá
+// router.post('/', verifyToken, createUsuario);
+
+// Solo admin puede cambiar rol
+router.put('/:id', verifyToken, updateUsuario);
+
+// Nadie puede borrar usuarios → eliminamos la ruta
+// router.delete('/:id', verifyToken, deleteUsuario);
 
 module.exports = router;

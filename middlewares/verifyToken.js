@@ -12,7 +12,7 @@ const verifyToken = (req, res, next) => {
 
     try {
         const decodedToken = jwt.verify(token, 'secreto1234')
-        req.user = decodedToken
+        req.user = decodedToken.user
         next()
     } catch (error) {
         return res.status(401).json({ message: 'Token invalido o expirado' })

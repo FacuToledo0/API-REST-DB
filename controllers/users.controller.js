@@ -38,7 +38,7 @@ const createUsuario = async (req, res) => {
     }
 };
 
-// Editar usuario
+// Editar usuario (solo rol, y solo admin)
 const updateUsuario = async (req, res) => {
     try {
         const usuario = await Usuario.findByPk(req.params.id);
@@ -46,18 +46,26 @@ const updateUsuario = async (req, res) => {
             return res.status(404).json({ status: 404, message: 'Usuario no encontrado' });
         }
 
-        const { nombre, email, edad } = req.body;
-        usuario.nombre = nombre || usuario.nombre;
-        usuario.email = email || usuario.email;
-        usuario.edad = edad || usuario.edad;
+        // Solo admin puede cambiar rol
+        if (req.user.rol !== 'admin') {
+            return res.status(403).json({ status: 403, message: 'No tienes permisos para cambiar roles' });
+        }
 
+        const { rol } = req.body;
+        if (!rol) {
+            return res.status(400).json({ status: 400, message: 'Debe especificar un rol' });
+        }
+
+        usuario.rol = rol;
         await usuario.save();
 
-        res.status(200).json({ status: 200, message: 'Usuario editado exitosamente', data: usuario });
+        res.status(200).json({ status: 200, message: 'Rol actualizado correctamente', data: usuario });
     } catch (error) {
-        res.status(500).json({ status: 500, message: 'Error al editar usuario', error: error.message });
+        res.status(500).json({ status: 500, message: 'Error al actualizar rol', error: error.message });
     }
 };
+
+
 
 // Eliminar usuario
 const deleteUsuario = async (req, res) => {
